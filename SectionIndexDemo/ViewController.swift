@@ -12,12 +12,35 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 
     @IBOutlet weak var tableView: UITableView!
     
-    var animals:[String] = ["Bear", "Black Swan", "Buffalo", "Camel", "Cockatoo", "Dog", "Donkey", "Emu", "Giraffe", "Greater Rhea", "Hippopotamus", "Horse", "Koala", "Lion", "Llama", "Manatus", "Meerkat", "Panda", "Peacock", "Pig", "Platypus", "Polar Bear", "Rhinoceros", "Seagull", "Tasmania Devil", "Whale", "Whale Shark", "Wombat"]
+    var animalsDict = ["B":["Bear", "Black Swan", "Buffalo"],
+                       "C":["Camel", "Cockatoo"],
+                       "D":["Dog", "Donkey"],
+                       "E":["Emu"],
+                       "G":["Giraffe", "Greater Rhea"],
+                       "H":["Hippopotamus", "Horse"],
+                       "K":["Koala"],
+                       "L":["Lion", "Llama"],
+                       "M":["Manatus", "Meerkat"],
+                       "P":["Panda", "Peacock", "Pig", "Platypus", "Polar Bear"],
+                       "R":["Rhinoceros"],
+                       "S":["Seagull"],
+                       "T":["Tasmania Devil"],
+                       "W":["Whale", "Whale Shark", "Wombat"]
+                       ]
+    
+    var animalSectionTitles:[String]?
+    var animalIndex = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".characters.map({String($0)})
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
+        
+        let lazyMapCollection = animalsDict.keys
+        animalSectionTitles = Array(lazyMapCollection).sort() {$0<$1}
+        
+        print(animalIndex)
         
         tableView.reloadData()
         // Do any additional setup after loading the view, typically from a nib.
@@ -28,17 +51,30 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         // Dispose of any resources that can be recreated.
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        return animals.count
+
+    //// Two methods needed for displaying section Index for the tableView
+    func sectionIndexTitlesForTableView(tableView: UITableView) -> [String]? {
+        return animalIndex
     }
     
-    // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
-    // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
+    func tableView(tableView: UITableView, sectionForSectionIndexTitle title: String, atIndex index: Int) -> Int {
+        let section = (animalSectionTitles!.indexOf(title)) ?? 0
+        return section
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let animalKey: String = animalSectionTitles![section]
+        let animalsInSection:[String] = animalsDict[animalKey]!
+        return animalsInSection.count
+    }
+
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCellWithIdentifier("animalCell", forIndexPath: indexPath)
-        let animalName = animals[indexPath.row]
+        let animalKey = animalSectionTitles![indexPath.section]
+        let animalArray = animalsDict[animalKey]
+        let animalName = animalArray![indexPath.row]
         let animalImageName = animalName.lowercaseString.stringByReplacingOccurrencesOfString(" ", withString: "_")
         let animalImageNameFinal = "\(animalImageName).jpg"
         cell.textLabel!.text = animalName
@@ -47,8 +83,13 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         return cell
     }
     
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return animalSectionTitles![section]
+        
+    }
+    
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        return (animalSectionTitles?.count)!
     }// Default is 1 if not implemented
 
 
